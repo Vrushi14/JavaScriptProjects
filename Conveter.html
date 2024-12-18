@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Dynamic Unit Converter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .converter-container {
+      background-color: #161b22;
+      padding: 25px;
+      width: 650px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      color: #58a6ff;
+    }
+
+    select, input, button {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #30363d;
+      background-color: #21262d;
+      color: #ffffff;
+      font-size: 1rem;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    select:focus, input:focus {
+      border-color: #58a6ff;
+      box-shadow: 0 0 5px #58a6ff;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0;
+    }
+
+    .formula, .history {
+      color: #58a6ff;
+      font-size: 1.1rem;
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    .history ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    button {
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #2ea043;
+    }
+
+    .btn-swap {
+      background-color: #238636;
+    }
+
+    .btn-swap:hover {
+      background-color: #2ea043;
+    }
+  </style>
+</head>
+<body>
+  <div class="converter-container">
+    <h1>Enhanced Unit Converter</h1>
+
+    <!-- Conversion Type Dropdown -->
+    <select id="converterType" onchange="updateUnits()">
+      <option value="temperature">Temperature</option>
+      <option value="length">Length</option>
+      <option value="mass">Mass</option>
+      <option value="speed">Speed</option>
+      <option value="volume">Volume</option>
+    </select>
+
+    <!-- Input Section -->
+    <div class="input-row">
+      <input type="number" id="inputValue" placeholder="Enter Value" oninput="convertValue()">
+      <button class="btn-swap" onclick="swapUnits()">↔</button>
+      <input type="text" id="outputValue" placeholder="Result" disabled>
+    </div>
+
+    <!-- Unit Selection -->
+    <div class="input-row">
+      <select id="fromUnit" onchange="convertValue()"></select>
+      <select id="toUnit" onchange="convertValue()"></select>
+    </div>
+
+    <!-- Formula Display -->
+    <div class="formula">
+      Formula: <span id="formulaDisplay">Select units to view the formula.</span>
+    </div>
+
+    <!-- History Section -->
+    <div class="history">
+      <h3>Conversion History</h3>
+      <ul id="historyList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const units = {
+      temperature: ["Celsius", "Fahrenheit", "Kelvin"],
+      length: ["Meter", "Kilometer", "Mile"],
+      mass: ["Kilogram", "Gram", "Pound"],
+      speed: ["Meters per second", "Kilometers per hour", "Miles per hour"],
+      volume: ["Liter", "Milliliter", "Gallon"]
+    };
+
+    const historyList = [];
+
+    function populateUnits(type) {
+      const fromUnit = document.getElementById("fromUnit");
+      const toUnit = document.getElementById("toUnit");
+      fromUnit.innerHTML = "";
+      toUnit.innerHTML = "";
+
+      units[type].forEach(unit => {
+        fromUnit.add(new Option(unit, unit));
+        toUnit.add(new Option(unit, unit));
+      });
+
+      toUnit.selectedIndex = 1; 
+    }
+
+    function updateUnits() {
+      const type = document.getElementById("converterType").value;
+      populateUnits(type);
+      convertValue();
+    }
+
+    function convertValue() {
+      const inputValue = parseFloat(document.getElementById("inputValue").value);
+      const fromUnit = document.getElementById("fromUnit").value;
+      const toUnit = document.getElementById("toUnit").value;
+
+      if (isNaN(inputValue)) {
+        document.getElementById("outputValue").value = "";
+        return;
+      }
+
+      let result = inputValue;
+      if (fromUnit === toUnit) result = inputValue;
+
+      // Conversion logic example (add more as needed)
+      if (fromUnit === "Celsius" && toUnit === "Fahrenheit") result = (inputValue * 9/5) + 32;
+
+      document.getElementById("outputValue").value = result.toFixed(4);
+      updateFormula(fromUnit, toUnit);
+      addToHistory(inputValue, fromUnit, result, toUnit);
+    }
+
+    function updateFormula(from, to) {
+      document.getElementById("formulaDisplay").innerText = `Converting from ${from} to ${to}`;
+    }
+
+    function swapUnits() {
+      const fromUnit = document.getElementById("fromUnit");
+      const toUnit = document.getElementById("toUnit");
+      [fromUnit.value, toUnit.value] = [toUnit.value, fromUnit.value];
+      convertValue();
+    }
+
+    function addToHistory(input, fromUnit, result, toUnit) {
+      const historyUl = document.getElementById("historyList");
+      const listItem = document.createElement("li");
+      listItem.innerText = `${input} ${fromUnit} = ${result} ${toUnit}`;
+      historyUl.prepend(listItem);
+      if (historyUl.childNodes.length > 5) historyUl.removeChild(historyUl.lastChild);
+    }
+
+    updateUnits();
+  </script>
+</body>
+</html>
