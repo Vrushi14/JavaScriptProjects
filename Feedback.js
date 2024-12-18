@@ -1,12 +1,11 @@
-// function Input() {
-
-//     let name = document.getElementById("name").value;
-//     let email = document.getElementById("email").value;
-//     let div = document.getElementById("div").value;
-//     let feedback = document.getElementById("fd").value;
-  
-    
-//     document.getElementById("myP").value = `Thank you ! Hello, my name is ${name}, my email is ${email}, my division is ${div} and your feedback bright my future: ${feedback} ` ;
-//     console.log(myP)
-    
-//   }
+function show() {
+    let name = document.getElementById("nm").value
+    let Email = document.getElementById("em").value
+    let Div = document.getElementById("div").value
+    let feedback = document.getElementById("feed").value
+    document.getElementById("myP").textContent = `Thankyou your feedback ${name}`
+    console.log(name)
+    console.log(Email)
+    console.log(Div)
+    console.log(feedback)
+}

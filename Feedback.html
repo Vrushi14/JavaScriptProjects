@@ -1,111 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Feedback Form</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-      color: #333;
-    }
-    .form-container {
-      max-width: 500px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-    }
-    h2 {
-      text-align: center;
-      color: #444;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      margin-top: 15px;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #444;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form</title>
+    <style>
+        /* General Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: lightblue;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Feedback Form Container */
+.feedback-container {
+    background-color: #ffffff;
+    width: 400px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.feedback-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Form Styling */
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin: 10px 0 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+input, select, textarea {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+/* Submit Button Styling */
+button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transition: 0.3s;
+}
+
+    </style> <!-- Link to external CSS -->
 </head>
 <body>
-  <div class="form-container">
-    <h2>Feedback Form</h2>
-    <form id="feedbackForm">
-      <label for="name">Name:</label>
-      <input type="text" id="name" placeholder="Enter your name">
+    <div class="feedback-container">
+        <h2 id="FF">FeedBack Form</h2>
+            <!-- Name Input -->
+             <div class="form">
+            <label>Name:</label>
+            <input type="text" id="nm" placeholder="Enter your name" required>
 
-      <label for="email">Email:</label>
-      <input type="email" id="email" placeholder="Enter your email">
+            <label for="email" id="email1">Email:</label>
+            <input type="email" id="em" name="email" placeholder="Enter your email" required>
 
-      <label for="division">Division:</label>
-      <select id="division">
-        <option value="">--Select Division--</option>
-        <option value="6ITA">6ITA</option>
-        <option value="6ITB">6ITB</option>
-        <option value="6ITC">6ITC</option>
-        <option value="6ITD">6ITD</option>
-        <option value="6ITE">6ITE</option>
-        <option value="6ITF">6ITF</option>
-      </select>
+            <label for="division" id="div1">Div:</label>
+            <select id="div" name="division" required>
+                <option value="A" id="op1">A</option>
+                <option value="B" id="op2">B</option>
+                <option value="C" id="op3">C</option>
+                <option value="D" id="op4">D</option>
+            </select>
+            
+            <label for="feedback">FeedBack:</label>
+            <textarea id="feed" name="feedback" rows="5" placeholder="Write your feedback here..." required></textarea>
 
-      <label for="feedback">Feedback:</label>
-      <textarea id="feedback" rows="5" placeholder="Enter your feedback"></textarea>
+            <!-- Submit Button -->
+            <button type="submit" id="sub" onclick="show()">Submit</button>
+        </div>
+        <div id="myP"></div>
+    </div>
 
-      <button type="button" onclick="submitFeedback()">Submit</button>
-    </form>
-  </div>
-
-  <script>
-    function submitFeedback() {
-      // Capture input values
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const division = document.getElementById("division").value;
-      const feedback = document.getElementById("feedback").value;
-
-      // Check if all fields are filled
-      if (name && email && division && feedback) {
-        console.log("Feedback Submitted:");
-        console.log("Name:", name);
-        console.log("Email:", email);
-        console.log("Division:", division);
-        console.log("Feedback:", feedback);
-
-        // Clear the form after submission
-        document.getElementById("feedbackForm").reset();
-
-        // Success alert
-        alert(`Thanks for the feedback, ${name}!`);
-
-        // Redirect to another URL after submission
-        window.location.href = "https://example.com/thankyou.html"; // Change to your desired URL
-      } else {
-        alert("Please fill all the fields before submitting.");
-      }
-    }
-  </script>
+    <script src="Feedback.js"></script>
 </body>
 </html>
