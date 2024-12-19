@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Guesser Game</title>
+    <style>
+        body {
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 255, 255, 0.3);
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00b3ff;
+            text-shadow: 0 0 10px #00b3ff;
+        }
+
+        select,
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 80%;
+            background-color: #1e1e1e;
+            color: #00b3ff;
+            border: 2px solid #00b3ff;
+        }
+
+        select:focus,
+        input[type="number"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00b3ff;
+        }
+
+        button {
+            background-color: #00b3ff;
+            color: #121212;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #00b3ff;
+        }
+
+        .output {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        .correct {
+            color: #32cd32;
+        }
+
+        .incorrect {
+            color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Random Number Guesser</h1>
+
+        <label for="rangeSelect">Choose the range of numbers:</label>
+        <select id="rangeSelect">
+            <option value="10">1 - 10</option>
+            <option value="50">1 - 50</option>
+            <option value="100">1 - 100</option>
+            <option value="500">1 - 500</option>
+            <option value="1000">1 - 1000</option>
+        </select>
+        <br>
+        <br>
+        <label for="guessInput">Guess a number:</label>
+        <input type="number" id="guessInput" min="1" placeholder="Enter your guess">
+
+        <button onclick="checkGuess()">Guess</button>
+        
+        <br>
+        <div class="output" id="feedback"></div>
+    </div>
+
+    <script>
+        let randomNumber;
+        let minRange;
+        let maxRange;
+        let attempts = 0;
+
+        // Function to update the random number range based on the selected option
+        document.getElementById('rangeSelect').addEventListener('change', function() {
+            minRange = 1;
+            maxRange = parseInt(this.value);
+            generateRandomNumber();
+        });
+
+        // Function to generate a random number within the selected range
+        function generateRandomNumber() {
+            randomNumber = Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
+            attempts = 0;
+            document.getElementById('feedback').textContent = "Make a guess!";
+        }
+
+        // Function to check the user's guess
+        function checkGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            const feedback = document.getElementById('feedback');
+            attempts++;
+
+            if (isNaN(guess) || guess < minRange || guess > maxRange) {
+                feedback.textContent = `Please enter a number between ${minRange} and ${maxRange}.`;
+                feedback.className = "incorrect";
+                return;
+            }
+
+            if (guess === randomNumber) {
+                feedback.textContent = `Congratulations! You guessed the correct number ${randomNumber} in ${attempts} attempts!`;
+                feedback.className = "correct";
+                setTimeout(generateRandomNumber, 3000); // Reset game after 3 seconds
+            } else if (guess < randomNumber) {
+                feedback.textContent = "Your guess is too low. Try again!";
+                feedback.className = "incorrect";
+            } else {
+                feedback.textContent = "Your guess is too high. Try again!";
+                feedback.className = "incorrect";
+            }
+        }
+
+        // Initialize game with default range (1-10)
+        generateRandomNumber();
+
+    </script>
+
+</body>
+</html>

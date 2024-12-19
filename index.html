@@ -6,69 +6,124 @@
     <title>Projects</title>
     <style>
         /* General Body Styling */
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f8f8f8;
-    color: #333;
-}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color:#E1FFBB;
+            color: #333;
+        }
 
-/* Table Styling */
-table {
-    width: 50%;
-    margin: 0 auto;
-    border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+        /* Navigation Container */
+        .nav-container {
+            width: 50%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 15px;
+        }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-}
+        /* Navigation Buttons */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+            height: 50px;
+            background-color:#009990;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
 
-th {
-    background-color: #007BFF;
-    color: #fff;
-}
+        .nav-item:hover {
+            background-color: #10d8cb;
+            transform: scale(1.05);
+        }
 
-tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
 
-tr:hover {
-    background-color: #ddd;
-}
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            text-align: center;
+        }
 
-/* Heading Styling */
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #007BFF;
-}
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
+        .close:hover, .close:focus {
+            color: #000;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Navigation Table</h2>
-    <table>
-        <tr>
-            <th>Resume</th>
-            <th>Feedback Form</th>
-            <th>Dice Game</th>
-            <th>3D Calculator</th>
-            <th>Counter</th>
-            <th>Random</th>
-        </tr>
-        <tr>
-            <td><a href="Resume.html">Resume</a></td>
-            <td><a href="Feedback.html">Feedback Form</a></td>
-            <td><a href="Dice.html">Dice</a></td>
-            <td><a href="3D_calculator.html">3D Calculator</a></td>
-            <td><a href="Counter.html">Counter</a></td>
-            <td><a href="Random.html">Random</a></td>
-        </tr>
-    </table>
+    <h2 style="text-align: center; font-family: cursive;" >My Projects</h2>
+    <div class="nav-container">
+        <div class="nav-item" onclick="showModal('Resume.html')">Resume</div>
+        <div class="nav-item" onclick="showModal('Feedback.html')">Feedback Form</div>
+        <div class="nav-item" onclick="showModal('Dice.html')">Dice Game</div>
+        <div class="nav-item" onclick="showModal('3D_calculator.html')">3D Calculator</div>
+        <div class="nav-item" onclick="showModal('Counter.html')">Counter</div>
+        <div class="nav-item" onclick="showModal('Random.html')">Random</div>
+        <div class="nav-item" onclick="showModal('Converter.html')">Converter</div>
+        <div class="nav-item" onclick="showModal('RandomNumberGusser.html')">Random Number Guesser</div>
+        <div class="nav-item" onclick="showModal('RandomPasswordGenerator.html')">Random Password Generator</div>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>Loading...</p>
+            <iframe id="modalIframe" src="" width="100%" height="400px" style="border:none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function showModal(page) {
+            const modal = document.getElementById('myModal');
+            const iframe = document.getElementById('modalIframe');
+            iframe.src = page;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            const iframe = document.getElementById('modalIframe');
+            modal.style.display = 'none';
+            iframe.src = '';
+        }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('myModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
 </body>
 </html>
