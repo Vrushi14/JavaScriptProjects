@@ -1,140 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Classification</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
-  <style>
-    /* General Reset */
-* {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Classifier</title>
+    <link rel="stylesheet" href="img.css" />
+    <!-- ML5.js Library -->
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <style>
+      * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  font-family: "Poppins", Arial, sans-serif;
-  background: linear-gradient(135deg, #00bcd4, #8e44ad);
-  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  background-color: #A294F9; /* Light lavender background */
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100vh;
-  text-align: center;
-  overflow: hidden;
-  animation: fadeIn 2s ease-out;
+  animation: fadeIn 1s ease-in-out;
 }
 
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+.container {
+  width: 90%;
+  max-width: 800px;
+  margin: 20px;
+  padding: 2.5rem;
+  background-color: #CDC1FF; /* Soft lavender container */
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  color: #4A3C89; /* Darker text color for contrast */
+  animation: slideUp 1s ease-out;
 }
 
 h1 {
-  font-size: 3rem;
+  text-align: center;
+  font-size: 2.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  color: #4A3C89;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: textGlow 1.5s ease-in-out infinite alternate;
+}
+
+.status {
+  text-align: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #ff4f7e;
+  border-radius: 10px;
   color: #fff;
-  margin-bottom: 30px;
-  animation: slideIn 1.5s ease-out;
+  font-size: 1.1rem;
+  font-weight: bold;
+  opacity: 0;
+  animation: fadeIn 2s ease-in-out forwards;
 }
 
-@keyframes slideIn {
-  0% { transform: translateY(-50px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+.upload-section {
+  text-align: center;
+  margin: 2rem 0;
 }
 
-input[type="file"] {
-  margin-top: 30px;
-  padding: 15px;
-  border: 2px solid #fff;
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.4s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-input[type="file"]:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-img {
-  margin-top: 25px;
-  width: 250px;
-  height: auto;
+.upload-button {
+  display: block;
+  padding: 3rem;
+  margin: 2rem auto;
+  border: 3px dashed #ff69b4;
   border-radius: 15px;
-  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.3);
-  transition: transform 0.4s ease, box-shadow 0.3s ease;
-  animation: scaleUp 0.6s ease-out;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 250px;
 }
 
-@keyframes scaleUp {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-img:hover {
+.upload-button:hover {
+  background-color: rgba(236, 156, 216, 0.8);
+  border-color: #f06492;
   transform: scale(1.1);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 40px rgba(230, 119, 220, 0.4);
 }
 
-button {
-  margin-top: 20px;
-  padding: 15px 30px;
-  background: linear-gradient(135deg, #ff6347, #ff8c00);
+.info {
+  color: #4A3C89;
+  font-size: 1rem;
+}
+
+.results-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color:  #2ecc71;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.predictions {
+  margin-top: 1rem;
+}
+
+.prediction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background-color: #ff69b4;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+ 
+}
+
+.confidence-bar {
+  height: 15px;
+  background-color: #1e90ff;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+.reset-button {
+  display: block;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  background-color: #2ecc71;
   color: white;
   border: none;
-  border-radius: 50px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  border-radius: 15px;
   cursor: pointer;
-  transition: all 0.4s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
 }
 
-button:hover {
-  background: linear-gradient(135deg, #ff8c00, #ff6347);
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+.reset-button:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
 }
 
-.hidden {
-  display: none;
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-#myResult {
-  margin-top: 20px;
-  font-size: 1.5rem;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
-  max-width: 80%;
-  word-wrap: break-word;
-  animation: slideInResult 1.5s ease-out;
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes slideInResult {
-  0% { transform: translateY(50px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+@keyframes slideUp {
+  0% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-  </style>
-</head>
-<body>
-  <h1>Image Classification</h1>
-  <input type="file" id="fileInput" accept="image/*">
-  <img id="myImage" class="hidden">
-  <button id="classifyButton" class="hidden">Classify Image</button>
-  <div id="myResult" class="hidden"></div>
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff69b4;
+  }
+  100% {
+    text-shadow: 0 0 20px #ff69b4, 0 0 30px #ff69b4;
+  }
+}
 
-  <script src="ImageClassification.js"></script>
-</body>
+@media (max-width: 600px) {
+  .container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .upload-button {
+    padding: 2rem;
+  }
+
+  .reset-button {
+    padding: 0.8rem 1.5rem;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Image Classifier</h1>
+
+      <!-- Model Loading Status -->
+      <div id="model-status" class="status">Loading model...</div>
+
+      <!-- Upload Section -->
+      <div class="upload-section">
+        <input type="file" id="image-input" accept="image/*" class="hidden" />
+        <label for="image-input" class="upload-button">
+          Choose Image or Drop Here
+        </label>
+        <p class="info">Supported formats: JPG, PNG</p>
+      </div>
+
+      <!-- Results Section -->
+      <div id="results" class="results-container">
+        <h2>Classification Results</h2>
+        <div id="predictions" class="predictions">
+          <!-- Predictions will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Reset Button -->
+      <button id="reset-button" class="reset-button">
+        Try Another Image
+      </button>
+    </div>
+
+    <script src="ImageClassification.js"></script>
+  </body>
 </html>
