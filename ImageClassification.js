@@ -3,7 +3,7 @@ let imgElement; // Image reference
 
 // Load the model and set up event listeners
 window.onload = function () {
-  classifier = ml5.imageClassifier("MobileNet", modelLoaded);
+  classifier = ml5.imageClassifier("https://teachablemachine.withgoogle.com/models/[...]", modelLoaded);
 
   // Event listeners
   document.getElementById("fileInput").addEventListener("change", handleFileSelect);
