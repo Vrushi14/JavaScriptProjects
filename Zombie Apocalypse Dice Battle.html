@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Apocalypse Dice Battle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            color: #00ff41;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 20px #ff0040, 0 0 40px #ff0040;
+            margin-bottom: 10px;
+            animation: flicker 2s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #ff6b6b;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .main-area {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            position: relative;
+        }
+
+        .stats-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0040;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 64, 0.3);
+        }
+
+        .dice-arena {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+            justify-items: center;
+        }
+
+        .dice {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 3px solid #00ff41;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00ff41;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-shadow: 0 0 15px #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        }
+
+        .dice:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.6);
+        }
+
+        .dice.rolling {
+            animation: diceRoll 0.8s ease-in-out;
+            border-color: #ff0040;
+            color: #ff0040;
+            text-shadow: 0 0 15px #ff0040;
+        }
+
+        .dice.exploding {
+            animation: explode 0.6s ease-out;
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            75% { transform: rotate(270deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: 2px solid;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 0;
+        }
+
+        .attack-btn {
+            border-color: #ff0040;
+            color: #ff0040;
+        }
+
+        .attack-btn::before {
+            background: linear-gradient(90deg, transparent, #ff0040, transparent);
+        }
+
+        .attack-btn:hover {
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+            box-shadow: 0 0 20px #ff0040;
+        }
+
+        .defend-btn {
+            border-color: #00ff41;
+            color: #00ff41;
+        }
+
+        .defend-btn::before {
+            background: linear-gradient(90deg, transparent, #00ff41, transparent);
+        }
+
+        .defend-btn:hover {
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 20px #00ff41;
+        }
+
+        .special-btn {
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+
+        .special-btn::before {
+            background: linear-gradient(90deg, transparent, #ffa500, transparent);
+        }
+
+        .special-btn:hover {
+            color: #000;
+            box-shadow: 0 0 20px #ffa500;
+        }
+
+        .reset-btn {
+            border-color: #8a2be2;
+            color: #8a2be2;
+        }
+
+        .reset-btn::before {
+            background: linear-gradient(90deg, transparent, #8a2be2, transparent);
+        }
+
+        .reset-btn:hover {
+            color: #fff;
+            box-shadow: 0 0 20px #8a2be2;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 5px;
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .health-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            border: 1px solid #00ff41;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0040, #ffa500, #00ff41);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .game-log {
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .log-damage {
+            color: #ff0040;
+            text-shadow: 0 0 5px #ff0040;
+        }
+
+        .log-heal {
+            color: #00ff41;
+            text-shadow: 0 0 5px #00ff41;
+        }
+
+        .log-special {
+            color: #ffa500;
+            text-shadow: 0 0 5px #ffa500;
+        }
+
+        .zombie-counter {
+            text-align: center;
+            font-size: 2rem;
+            margin: 20px 0;
+            text-shadow: 0 0 15px #ff0040;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ff0040;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .game-over.show {
+            display: block;
+            animation: gameOverPulse 1s ease infinite alternate;
+        }
+
+        @keyframes gameOverPulse {
+            0% { box-shadow: 0 0 20px #ff0040; }
+            100% { box-shadow: 0 0 40px #ff0040; }
+        }
+
+        .particles {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #00ff41;
+            border-radius: 50%;
+            animation: particle 2s linear infinite;
+        }
+
+        @keyframes particle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .dice-arena {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🧟 ZOMBIE APOCALYPSE 🎲</h1>
+        <p class="subtitle">Survive the undead horde with strategic dice battles!</p>
+        
+        <div class="game-board">
+            <div class="main-area">
+                <div class="zombie-counter" id="zombieCounter">
+                    Zombies Remaining: <span id="zombieCount">20</span> 🧟‍♂️
+                </div>
+                
+                <div class="dice-arena" id="diceArena">
+                    <div class="dice" data-index="0">?</div>
+                    <div class="dice" data-index="1">?</div>
+                    <div class="dice" data-index="2">?</div>
+                    <div class="dice" data-index="3">?</div>
+                    <div class="dice" data-index="4">?</div>
+                    <div class="dice" data-index="5">?</div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn attack-btn" id="attackBtn">⚔️ Attack Wave</button>
+                    <button class="btn defend-btn" id="defendBtn">🛡️ Defensive Roll</button>
+                    <button class="btn special-btn" id="specialBtn">💥 Special Ability</button>
+                    <button class="btn reset-btn" id="resetBtn">🔄 New Game</button>
+                </div>
+                
+                <div class="game-log" id="gameLog">
+                    <div class="log-entry">Welcome to the Zombie Apocalypse! Choose your action...</div>
+                </div>
+            </div>
+            
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">Health:</span>
+                    <span class="stat-value" id="playerHealth">100</span>
+                </div>
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill" style="width: 100%"></div>
+                </div>
+                
+                <div class="stat-item">
+                    <span class="stat-label">Ammo:</span>
+                    <span class="stat-value" id="ammo">50</span>
+                </div>
+                
+                <div class="stat-item">
+                    <span class="stat-label">Special Charges:</span>
+                    <span class="stat-value" id="specialCharges">3</span>
+                </div>
+                
+                <div class="stat-item">
+                    <span class="stat-label">Wave:</span>
+                    <span class="stat-value" id="waveNumber">1</span>
+                </div>
+                
+                <div class="stat-item">
+                    <span class="stat-label">Zombies Killed:</span>
+                    <span class="stat-value" id="killCount">0</span>
+                </div>
+                
+                <div class="stat-item">
+                    <span class="stat-label">Score:</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2 id="gameOverTitle">GAME OVER</h2>
+        <p id="gameOverMessage">The zombies have overrun your position!</p>
+        <button class="btn reset-btn" onclick="game.resetGame()">Try Again</button>
+    </div>
+
+    <script>
+        class ZombieApocalypseGame {
+            constructor() {
+                this.playerHealth = 100;
+                this.maxHealth = 100;
+                this.ammo = 50;
+                this.specialCharges = 3;
+                this.zombieCount = 20;
+                this.waveNumber = 1;
+                this.killCount = 0;
+                this.score = 0;
+                this.diceValues = [];
+                this.isRolling = false;
+                
+                this.initializeGame();
+            }
+            
+            initializeGame() {
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.addLog("Game initialized. The undead are approaching...", "log-special");
+            }
+            
+            setupEventListeners() {
+                document.getElementById('attackBtn').addEventListener('click', () => this.attackWave());
+                document.getElementById('defendBtn').addEventListener('click', () => this.defensiveRoll());
+                document.getElementById('specialBtn').addEventListener('click', () => this.specialAbility());
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetGame());
+            }
+            
+            rollDice(numDice = 6) {
+                if (this.isRolling) return;
+                
+                this.isRolling = true;
+                const diceElements = document.querySelectorAll('.dice');
+                this.diceValues = [];
+                
+                diceElements.forEach((dice, index) => {
+                    if (index < numDice) {
+                        dice.classList.add('rolling');
+                        dice.style.display = 'flex';
+                    } else {
+                        dice.style.display = 'none';
+                    }
+                });
+                
+                setTimeout(() => {
+                    diceElements.forEach((dice, index) => {
+                        if (index < numDice) {
+                            const value = Math.floor(Math.random() * 6) + 1;
+                            this.diceValues.push(value);
+                            dice.textContent = value;
+                            dice.classList.remove('rolling');
+                            
+                            if (value === 6) {
+                                dice.classList.add('exploding');
+                                this.createParticles(dice);
+                                setTimeout(() => dice.classList.remove('exploding'), 600);
+                            }
+                        }
+                    });
+                    
+                    this.isRolling = false;
+                }, 800);
+            }
+            
+            createParticles(element) {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particles';
+                        particle.style.left = Math.random() * 90 + 'px';
+                        particle.style.top = Math.random() * 90 + 'px';
+                        element.appendChild(particle);
+                        
+                        setTimeout(() => particle.remove(), 2000);
+                    }, i * 100);
+                }
+            }
+            
+            attackWave() {
+                if (this.ammo <= 0) {
+                    this.addLog("Out of ammo! Use defensive roll to scavenge.", "log-damage");
+                    return;
+                }
+                
+                this.rollDice(4);
+                this.ammo -= 5;
+                
+                setTimeout(() => {
+                    const attackPower = this.diceValues.reduce((sum, val) => sum + val, 0);
+                    const criticalHits = this.diceValues.filter(val => val === 6).length;
+                    const zombiesKilled = Math.floor(attackPower / 4) + criticalHits;
+                    
+                    this.zombieCount = Math.max(0, this.zombieCount - zombiesKilled);
+                    this.killCount += zombiesKilled;
+                    this.score += zombiesKilled * 10 + criticalHits * 20;
+                    
+                    if (criticalHits > 0) {
+                        this.addLog(`💥 CRITICAL HITS! ${criticalHits} headshots! Killed ${zombiesKilled} zombies!`, "log-special");
+                    } else {
+                        this.addLog(`⚔️ Attack dealt ${attackPower} damage! Killed ${zombiesKilled} zombies.`, "log-damage");
+                    }
+                    
+                    if (this.zombieCount <= 0) {
+                        this.nextWave();
+                    } else {
+                        this.zombieCounterAttack();
+                    }
+                    
+                    this.updateDisplay();
+                }, 900);
+            }
+            
+            defensiveRoll() {
+                this.rollDice(3);
+                
+                setTimeout(() => {
+                    const defenseValue = this.diceValues.reduce((sum, val) => sum + val, 0);
+                    const ammoFound = Math.floor(defenseValue / 2);
+                    const healthRestored = this.diceValues.filter(val => val >= 5).length * 5;
+                    
+                    this.ammo = Math.min(100, this.ammo + ammoFound);
+                    this.playerHealth = Math.min(this.maxHealth, this.playerHealth + healthRestored);
+                    
+                    this.addLog(`🛡️ Defensive position! Found ${ammoFound} ammo, restored ${healthRestored} health.`, "log-heal");
+                    
+                    this.zombieCounterAttack();
+                    this.updateDisplay();
+                }, 900);
+            }
+            
+            specialAbility() {
+                if (this.specialCharges <= 0) {
+                    this.addLog("No special charges remaining!", "log-damage");
+                    return;
+                }
+                
+                this.rollDice(6);
+                this.specialCharges--;
+                
+                setTimeout(() => {
+                    const specialPower = this.diceValues.reduce((sum, val) => sum + val, 0);
+                    const explosions = this.diceValues.filter(val => val === 6).length;
+                    
+                    let zombiesKilled = Math.floor(specialPower / 2);
+                    let effect = "Explosive barrage";
+                    
+                    if (explosions >= 3) {
+                        zombiesKilled *= 2;
+                        effect = "NUCLEAR BLAST";
+                        this.addLog(`☢️ ${effect}! Massive destruction! ${zombiesKilled} zombies vaporized!`, "log-special");
+                    } else if (explosions >= 2) {
+                        zombiesKilled = Math.floor(zombiesKilled * 1.5);
+                        effect = "Chain explosion";
+                        this.addLog(`💥 ${effect}! ${zombiesKilled} zombies eliminated!`, "log-special");
+                    } else {
+                        this.addLog(`🧨 ${effect}! ${zombiesKilled} zombies destroyed!`, "log-special");
+                    }
+                    
+                    this.zombieCount = Math.max(0, this.zombieCount - zombiesKilled);
+                    this.killCount += zombiesKilled;
+                    this.score += zombiesKilled * 15 + explosions * 50;
+                    
+                    if (this.zombieCount <= 0) {
+                        this.nextWave();
+                    } else {
+                        this.zombieCounterAttack();
+                    }
+                    
+                    this.updateDisplay();
+                }, 900);
+            }
+            
+            zombieCounterAttack() {
+                const zombieAttack = Math.floor(Math.random() * this.zombieCount / 2) + 1;
+                const damage = Math.min(zombieAttack, this.playerHealth);
+                
+                this.playerHealth -= damage;
+                this.addLog(`🧟‍♂️ Zombies attack! You take ${damage} damage.`, "log-damage");
+                
+                if (this.playerHealth <= 0) {
+                    this.gameOver();
+                }
+            }
+            
+            nextWave() {
+                this.waveNumber++;
+                this.zombieCount = 15 + (this.waveNumber * 5);
+                this.specialCharges = Math.min(5, this.specialCharges + 1);
+                this.score += 100;
+                
+                this.addLog(`🌊 WAVE ${this.waveNumber} INCOMING! ${this.zombieCount} zombies approach!`, "log-special");
+                
+                if (this.waveNumber % 5 === 0) {
+                    this.addLog("🎁 Boss wave survived! Special charge bonus!", "log-heal");
+                    this.specialCharges += 2;
+                }
+            }
+            
+            gameOver() {
+                const gameOverElement = document.getElementById('gameOver');
+                const titleElement = document.getElementById('gameOverTitle');
+                const messageElement = document.getElementById('gameOverMessage');
+                
+                if (this.playerHealth <= 0) {
+                    titleElement.textContent = '💀 YOU DIED 💀';
+                    messageElement.textContent = `The zombie horde overwhelmed you at wave ${this.waveNumber}! Final Score: ${this.score}`;
+                } else {
+                    titleElement.textContent = '🏆 VICTORY! 🏆';
+                    messageElement.textContent = `You survived all waves! Final Score: ${this.score}`;
+                }
+                
+                gameOverElement.classList.add('show');
+            }
+            
+            resetGame() {
+                this.playerHealth = 100;
+                this.ammo = 50;
+                this.specialCharges = 3;
+                this.zombieCount = 20;
+                this.waveNumber = 1;
+                this.killCount = 0;
+                this.score = 0;
+                this.diceValues = [];
+                
+                document.getElementById('gameOver').classList.remove('show');
+                document.getElementById('gameLog').innerHTML = '<div class="log-entry">New game started! The apocalypse begins...</div>';
+                
+                const diceElements = document.querySelectorAll('.dice');
+                diceElements.forEach(dice => {
+                    dice.textContent = '?';
+                    dice.style.display = 'flex';
+                    dice.classList.remove('rolling', 'exploding');
+                });
+                
+                this.updateDisplay();
+            }
+            
+            addLog(message, className = '') {
+                const gameLog = document.getElementById('gameLog');
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${className}`;
+                logEntry.textContent = message;
+                gameLog.appendChild(logEntry);
+                gameLog.scrollTop = gameLog.scrollHeight;
+            }
+            
+            updateDisplay() {
+                document.getElementById('playerHealth').textContent = this.playerHealth;
+                document.getElementById('healthFill').style.width = (this.playerHealth / this.maxHealth * 100) + '%';
+                document.getElementById('ammo').textContent = this.ammo;
+                document.getElementById('specialCharges').textContent = this.specialCharges;
+                document.getElementById('zombieCount').textContent = this.zombieCount;
+                document.getElementById('waveNumber').textContent = this.waveNumber;
+                document.getElementById('killCount').textContent = this.killCount;
+                document.getElementById('score').textContent = this.score;
+            }
+        }
+        
+        // Initialize game
+        let game;
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new ZombieApocalypseGame();
+        });
+    </script>
+</body>
+</html>
