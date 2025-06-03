@@ -3,159 +3,626 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Number Guesser Game</title>
+    <title>Treasure Hunter - Number Quest</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(45deg, #1e3c72, #2a5298, #1e3c72);
+            background-size: 400% 400%;
+            animation: oceanWave 8s ease-in-out infinite;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-            overflow: hidden;
+            color: #fff;
+            overflow-x: hidden;
         }
 
-        .container {
-            background-color: #1e1e1e;
+        @keyframes oceanWave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .game-world {
+            position: relative;
+            background: rgba(139, 69, 19, 0.9);
+            border: 8px solid #8B4513;
+            border-radius: 30px;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 15px rgba(0, 255, 255, 0.3);
-            width: 350px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            max-width: 700px;
+            width: 95%;
             text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .treasure-map {
+            background: linear-gradient(135deg, #DEB887 0%, #F4A460 100%);
+            border: 3px solid #8B4513;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 20px rgba(139, 69, 19, 0.3);
         }
 
         h1 {
+            color: #8B0000;
             font-size: 2.5rem;
-            color: #00b3ff;
-            text-shadow: 0 0 10px #00b3ff;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
-        select,
-        input[type="number"] {
-            padding: 10px;
+        @keyframes glow {
+            from { text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); }
+            to { text-shadow: 3px 3px 6px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.4); }
+        }
+
+        .subtitle {
+            color: #654321;
             font-size: 1.2rem;
-            border-radius: 8px;
-            margin-top: 20px;
-            width: 80%;
-            background-color: #1e1e1e;
-            color: #00b3ff;
-            border: 2px solid #00b3ff;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
 
-        select:focus,
-        input[type="number"]:focus {
-            outline: none;
-            box-shadow: 0 0 10px #00b3ff;
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        button {
-            background-color: #00b3ff;
-            color: #121212;
-            padding: 12px 20px;
-            font-size: 1.2rem;
-            border: none;
+        .grid-cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #4682B4, #5F9EA0);
+            border: 2px solid #2F4F4F;
             border-radius: 8px;
-            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
             cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .grid-cell.guessed {
+            background: linear-gradient(135deg, #CD853F, #D2691E);
+            cursor: not-allowed;
+        }
+
+        .grid-cell.hot {
+            background: linear-gradient(135deg, #FF4500, #FF6347);
+            animation: hot 1s ease-in-out;
+        }
+
+        .grid-cell.warm {
+            background: linear-gradient(135deg, #FFA500, #FFD700);
+            animation: warm 1s ease-in-out;
+        }
+
+        .grid-cell.cold {
+            background: linear-gradient(135deg, #4169E1, #6495ED);
+            animation: cold 1s ease-in-out;
+        }
+
+        .grid-cell.treasure {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            animation: treasure 1.5s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+
+        @keyframes hot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); background: linear-gradient(135deg, #FF0000, #FF4500); }
+        }
+
+        @keyframes warm {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes cold {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.9); background: linear-gradient(135deg, #0000FF, #4169E1); }
+        }
+
+        @keyframes treasure {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(-5deg); }
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2E8B57, #3CB371);
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #228B22;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .compass {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #DAA520, #B8860B);
+            border: 5px solid #8B4513;
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: spin 0.5s ease-in-out;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #B8860B, #DAA520);
+            color: white;
+            border: 3px solid #8B4513;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, #DAA520, #FFD700);
+        }
+
+        .message-scroll {
+            background: rgba(222, 184, 135, 0.9);
+            border: 3px solid #8B4513;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #654321;
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.3);
+        }
+
+        .treasure-found {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 215, 0, 0.1);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .floating-treasure {
+            position: absolute;
+            font-size: 3rem;
+            animation: float 3s ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(50vh) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-20vh) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .difficulty-selector {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            background: linear-gradient(135deg, #4682B4, #5F9EA0);
+            color: white;
+            border: 2px solid #2F4F4F;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
             transition: all 0.3s ease;
         }
 
-        button:hover {
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #FF4500, #FF6347);
             transform: scale(1.1);
-            box-shadow: 0 0 15px #00b3ff;
         }
 
-        .output {
-            font-size: 1.4rem;
-            color: #fff;
-            margin-top: 20px;
+        .power-ups {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
         }
 
-        .correct {
-            color: #32cd32;
+        .power-up {
+            background: linear-gradient(135deg, #9932CC, #8A2BE2);
+            color: white;
+            border: 2px solid #4B0082;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .incorrect {
-            color: #ff6347;
+        .power-up:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(153, 50, 204, 0.6);
+        }
+
+        .power-up.used {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
+    <div class="game-world">
+        <div class="treasure-map">
+            <h1>🏴‍☠️ Treasure Hunter Quest</h1>
+            <p class="subtitle">Find the hidden treasure in the mystical grid!</p>
+            
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" onclick="setDifficulty('easy')">🟢 Easy (1-50)</button>
+                <button class="difficulty-btn" onclick="setDifficulty('medium')">🟡 Medium (1-75)</button>
+                <button class="difficulty-btn" onclick="setDifficulty('hard')">🔴 Hard (1-100)</button>
+            </div>
 
-    <div class="container">
-        <h1>Random Number Guesser</h1>
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-label">⚔️ Attempts</div>
+                    <div class="stat-value" id="attempts">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">💰 Treasures Found</div>
+                    <div class="stat-value" id="treasuresFound">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🏆 Best Hunt</div>
+                    <div class="stat-value" id="bestScore">-</div>
+                </div>
+            </div>
 
-        <label for="rangeSelect">Choose the range of numbers:</label>
-        <select id="rangeSelect">
-            <option value="10">1 - 10</option>
-            <option value="50">1 - 50</option>
-            <option value="100">1 - 100</option>
-            <option value="500">1 - 500</option>
-            <option value="1000">1 - 1000</option>
-        </select>
-        <br>
-        <br>
-        <label for="guessInput">Guess a number:</label>
-        <input type="number" id="guessInput" min="1" placeholder="Enter your guess">
+            <div class="compass" id="compass">🧭</div>
 
-        <button onclick="checkGuess()">Guess</button>
-        
-        <br>
-        <div class="output" id="feedback"></div>
+            <div class="power-ups">
+                <button class="power-up" id="hintPower" onclick="useHint()">
+                    🔮 Magic Hint (3 left)
+                </button>
+                <button class="power-up" id="rangePower" onclick="useRangeFinder()">
+                    📡 Range Finder (2 left)
+                </button>
+            </div>
+        </div>
+
+        <div class="game-grid" id="gameGrid"></div>
+
+        <div class="message-scroll" id="messageScroll">
+            🗺️ Choose your difficulty and start your treasure hunt!
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="newTreasureHunt()">🆕 New Hunt</button>
+            <button class="btn" onclick="showRules()">📜 Rules</button>
+        </div>
     </div>
 
+    <div class="treasure-found" id="treasureAnimation"></div>
+
     <script>
-        let randomNumber;
-        let minRange;
-        let maxRange;
+        let targetNumber = 0;
         let attempts = 0;
+        let treasuresFound = parseInt(localStorage.getItem('treasuresFound')) || 0;
+        let bestScore = localStorage.getItem('bestScore') || null;
+        let currentDifficulty = 'easy';
+        let maxNumber = 50;
+        let gameActive = false;
+        let hintsLeft = 3;
+        let rangeFinderLeft = 2;
 
-        // Function to update the random number range based on the selected option
-        document.getElementById('rangeSelect').addEventListener('change', function() {
-            minRange = 1;
-            maxRange = parseInt(this.value);
-            generateRandomNumber();
-        });
+        // Initialize game
+        document.getElementById('treasuresFound').textContent = treasuresFound;
+        if (bestScore) {
+            document.getElementById('bestScore').textContent = bestScore;
+        }
 
-        // Function to generate a random number within the selected range
-        function generateRandomNumber() {
-            randomNumber = Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
+        function setDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            
+            // Update button states
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            switch(difficulty) {
+                case 'easy': maxNumber = 50; break;
+                case 'medium': maxNumber = 75; break;
+                case 'hard': maxNumber = 100; break;
+            }
+
+            createGrid();
+            newTreasureHunt();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+            
+            const cellCount = Math.min(maxNumber, 100); // Max 100 cells for display
+            const cols = Math.ceil(Math.sqrt(cellCount));
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+            for (let i = 1; i <= cellCount; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.textContent = i;
+                cell.onclick = () => makeGuess(i);
+                grid.appendChild(cell);
+            }
+        }
+
+        function newTreasureHunt() {
+            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
             attempts = 0;
-            document.getElementById('feedback').textContent = "Make a guess!";
+            gameActive = true;
+            hintsLeft = 3;
+            rangeFinderLeft = 2;
+            
+            document.getElementById('attempts').textContent = '0';
+            document.getElementById('messageScroll').textContent = `🗺️ The treasure is hidden between 1 and ${maxNumber}. Click on the grid to search!`;
+            document.getElementById('compass').textContent = '🧭';
+            
+            // Reset power-ups
+            document.getElementById('hintPower').textContent = '🔮 Magic Hint (3 left)';
+            document.getElementById('hintPower').classList.remove('used');
+            document.getElementById('rangePower').textContent = '📡 Range Finder (2 left)';
+            document.getElementById('rangePower').classList.remove('used');
+            
+            // Reset grid
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.className = 'grid-cell';
+            });
+
+            createGrid();
         }
 
-        // Function to check the user's guess
-        function checkGuess() {
-            const guess = parseInt(document.getElementById('guessInput').value);
-            const feedback = document.getElementById('feedback');
+        function makeGuess(guess) {
+            if (!gameActive) return;
+            
+            const cell = document.querySelector(`.grid-cell:nth-child(${guess})`);
+            if (cell.classList.contains('guessed')) return;
+
             attempts++;
+            document.getElementById('attempts').textContent = attempts;
+            cell.classList.add('guessed');
 
-            if (isNaN(guess) || guess < minRange || guess > maxRange) {
-                feedback.textContent = `Please enter a number between ${minRange} and ${maxRange}.`;
-                feedback.className = "incorrect";
-                return;
+            const difference = Math.abs(guess - targetNumber);
+            const percentage = difference / maxNumber;
+
+            if (guess === targetNumber) {
+                // Found treasure!
+                cell.classList.add('treasure');
+                cell.textContent = '💎';
+                gameActive = false;
+                treasuresFound++;
+                
+                localStorage.setItem('treasuresFound', treasuresFound);
+                document.getElementById('treasuresFound').textContent = treasuresFound;
+                
+                if (!bestScore || attempts < parseInt(bestScore)) {
+                    bestScore = attempts;
+                    localStorage.setItem('bestScore', bestScore);
+                    document.getElementById('bestScore').textContent = bestScore;
+                }
+                
+                document.getElementById('messageScroll').textContent = 
+                    `🎉 TREASURE FOUND! You discovered it in ${attempts} attempts! The treasure was at position ${targetNumber}!`;
+                document.getElementById('compass').textContent = '💎';
+                
+                createTreasureAnimation();
+                
+            } else {
+                // Give distance-based feedback
+                if (percentage <= 0.05) {
+                    cell.classList.add('hot');
+                    cell.textContent = '🔥';
+                    document.getElementById('messageScroll').textContent = '🔥 BURNING HOT! The treasure is very close!';
+                    document.getElementById('compass').textContent = '🔥';
+                } else if (percentage <= 0.15) {
+                    cell.classList.add('warm');
+                    cell.textContent = '🌡️';
+                    document.getElementById('messageScroll').textContent = '🌡️ Getting warmer! You\'re on the right track!';
+                    document.getElementById('compass').textContent = '🌡️';
+                } else {
+                    cell.classList.add('cold');
+                    cell.textContent = '❄️';
+                    document.getElementById('messageScroll').textContent = '❄️ Cold! The treasure is far from here.';
+                    document.getElementById('compass').textContent = '❄️';
+                }
+
+                // Add directional hint
+                if (guess < targetNumber) {
+                    document.getElementById('messageScroll').textContent += ' Try searching higher numbers! ⬆️';
+                } else {
+                    document.getElementById('messageScroll').textContent += ' Try searching lower numbers! ⬇️';
+                }
             }
 
-            if (guess === randomNumber) {
-                feedback.textContent = `Congratulations! You guessed the correct number ${randomNumber} in ${attempts} attempts!`;
-                feedback.className = "correct";
-                setTimeout(generateRandomNumber, 3000); // Reset game after 3 seconds
-            } else if (guess < randomNumber) {
-                feedback.textContent = "Your guess is too low. Try again!";
-                feedback.className = "incorrect";
-            } else {
-                feedback.textContent = "Your guess is too high. Try again!";
-                feedback.className = "incorrect";
+            // Animate compass
+            document.getElementById('compass').style.animation = 'none';
+            setTimeout(() => {
+                document.getElementById('compass').style.animation = 'spin 0.5s ease-in-out';
+            }, 10);
+        }
+
+        function useHint() {
+            if (hintsLeft <= 0 || !gameActive) return;
+            
+            hintsLeft--;
+            const hintBtn = document.getElementById('hintPower');
+            hintBtn.textContent = `🔮 Magic Hint (${hintsLeft} left)`;
+            
+            if (hintsLeft === 0) {
+                hintBtn.classList.add('used');
+            }
+
+            // Give a range hint
+            const range = Math.ceil(maxNumber / 10);
+            const lowerBound = Math.max(1, targetNumber - range);
+            const upperBound = Math.min(maxNumber, targetNumber + range);
+            
+            document.getElementById('messageScroll').textContent = 
+                `🔮 The crystal ball reveals: The treasure lies between ${lowerBound} and ${upperBound}!`;
+        }
+
+        function useRangeFinder() {
+            if (rangeFinderLeft <= 0 || !gameActive) return;
+            
+            rangeFinderLeft--;
+            const rangeBtn = document.getElementById('rangePower');
+            rangeBtn.textContent = `📡 Range Finder (${rangeFinderLeft} left)`;
+            
+            if (rangeFinderLeft === 0) {
+                rangeBtn.classList.add('used');
+            }
+
+            // Highlight cells in range
+            const range = Math.ceil(maxNumber / 8);
+            for (let i = Math.max(1, targetNumber - range); i <= Math.min(maxNumber, targetNumber + range); i++) {
+                const cell = document.querySelector(`.grid-cell:nth-child(${i})`);
+                if (cell && !cell.classList.contains('guessed')) {
+                    cell.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.8)';
+                    setTimeout(() => {
+                        cell.style.boxShadow = '';
+                    }, 3000);
+                }
+            }
+            
+            document.getElementById('messageScroll').textContent = 
+                `📡 Range finder activated! Golden glow shows the treasure's vicinity!`;
+        }
+
+        function createTreasureAnimation() {
+            const container = document.getElementById('treasureAnimation');
+            const treasures = ['💎', '👑', '💰', '🏆', '💍'];
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const treasure = document.createElement('div');
+                    treasure.className = 'floating-treasure';
+                    treasure.textContent = treasures[Math.floor(Math.random() * treasures.length)];
+                    treasure.style.left = Math.random() * 100 + '%';
+                    treasure.style.animationDelay = Math.random() * 0.5 + 's';
+                    container.appendChild(treasure);
+                    
+                    setTimeout(() => {
+                        treasure.remove();
+                    }, 3000);
+                }, i * 200);
             }
         }
 
-        // Initialize game with default range (1-10)
-        generateRandomNumber();
+        function showRules() {
+            alert(`🏴‍☠️ TREASURE HUNTER RULES 🏴‍☠️
 
+🎯 OBJECTIVE: Find the hidden treasure number!
+
+🗺️ HOW TO PLAY:
+• Choose your difficulty level
+• Click on numbers in the grid to search
+• Follow the temperature clues:
+  🔥 BURNING HOT = Very close! (within 5% of range)
+  🌡️ WARM = Getting closer (within 15% of range)
+  ❄️ COLD = Far away
+• Use directional hints (higher ⬆️ or lower ⬇️)
+
+🔮 POWER-UPS:
+• Magic Hint: Reveals a range where treasure hides
+• Range Finder: Highlights treasure's vicinity with golden glow
+
+🏆 SCORING:
+• Fewer attempts = Better score
+• Find treasures to increase your collection
+• Beat your personal best!
+
+Good luck, brave treasure hunter! 🗡️`);
+        }
+
+        // Initialize the game
+        createGrid();
+        newTreasureHunt();
     </script>
-
 </body>
 </html>
