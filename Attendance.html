@@ -3,36 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Attendance System</title>
+    <title>Interactive Class Attendance System</title>
     <style>
         /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
-            background: radial-gradient(circle, #292E49, #536976);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #FFFFFF;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: slideInDown 1s ease-out;
         }
 
         h1 {
-            font-size: 3rem;
-            text-align: center;
-            margin-bottom: 30px;
-            animation: textFadeIn 1.5s ease-in-out;
-            background: linear-gradient(90deg, #ff8c00, #ffc107);
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4d9de0);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
         }
 
-        @keyframes textFadeIn {
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes slideInDown {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-50px);
             }
             to {
                 opacity: 1;
@@ -40,147 +65,653 @@
             }
         }
 
-        button {
-            background: linear-gradient(to right, #1f4037, #99f2c8);
-            color: #fff;
-            border: none;
-            padding: 15px 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-            text-transform: uppercase;
-            margin: 10px;
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.3s both;
         }
 
-        button:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover:before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #6bcf7f, #44a08d);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffd93d, #ff9500);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4d9de0, #15cdfc);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .webcam-section, .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 1s ease-out 0.6s both;
         }
 
         #webcam-container {
-            margin-top: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.5);
-            border-radius: 20px;
-            overflow: hidden;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #webcam-container canvas {
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            animation: containerZoomIn 1s ease-out;
+            transition: transform 0.3s ease;
         }
 
-        @keyframes containerZoomIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+        #webcam-container canvas:hover {
+            transform: scale(1.02);
         }
 
-        #message-container {
+        /* Status Messages */
+        .status-container {
             margin-top: 20px;
-            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .status-message {
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 1.3rem;
             font-weight: bold;
-            padding: 20px 30px;
+            transition: all 0.5s ease;
+            margin-bottom: 10px;
+        }
+
+        .status-success {
+            background: linear-gradient(135deg, #6bcf7f, #44a08d);
+            box-shadow: 0 5px 20px rgba(107, 207, 127, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .status-warning {
+            background: linear-gradient(135deg, #ffd93d, #ff9500);
+            box-shadow: 0 5px 20px rgba(255, 217, 61, 0.4);
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffd93d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
-            transition: all 0.3s;
+            transition: transform 0.3s ease;
         }
 
-        .success {
-            background: rgba(76, 175, 80, 0.9);
-            color: white;
-            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
-        .failure {
-            background: rgba(244, 67, 54, 0.9);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #6bcf7f;
         }
 
-        @keyframes fadePulse {
-            0%, 100% {
-                transform: scale(1);
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Attendance List */
+        .attendance-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .attendance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .attendance-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .student-name {
+            font-weight: bold;
+        }
+
+        .attendance-time {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4d9de0;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
             }
-            50% {
-                transform: scale(1.05);
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
 
-        .pulsing {
-            animation: fadePulse 2s infinite;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <h1>Class Attendance System</h1>
-    <button onclick="init()">Start Attendance</button>
-    <button onclick="showAttendanceHistory()">View Attendance History</button>
-    <div id="webcam-container"></div>
-    <div id="message-container"></div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Smart Attendance System</h1>
+            <p class="subtitle">AI-Powered Face Recognition for Modern Classrooms</p>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="btn btn-success" onclick="startAttendance()">
+                <span id="start-btn-text">🎥 Start Attendance</span>
+            </button>
+            <button class="btn btn-info" onclick="toggleHistory()">📊 View History</button>
+            <button class="btn btn-warning" onclick="exportData()">📤 Export Data</button>
+            <button class="btn" onclick="toggleSettings()">⚙️ Settings</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Webcam Section -->
+            <div class="webcam-section">
+                <h3>📹 Live Camera Feed</h3>
+                <div id="webcam-container">
+                    <p>Click "Start Attendance" to begin face recognition</p>
+                </div>
+                <div class="status-container">
+                    <div id="status-message" class="status-message">System Ready</div>
+                    <div id="confidence-meter" style="display: none;">
+                        <small>Recognition Confidence: <span id="confidence-value">0%</span></small>
+                        <div style="background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 5px;">
+                            <div id="confidence-bar" style="height: 100%; background: #6bcf7f; border-radius: 4px; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <div class="info-panel">
+                    <h3 class="info-title">📈 Today's Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-present">0</div>
+                            <div class="stat-label">Present Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-scans">0</div>
+                            <div class="stat-label">Total Scans</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="recognition-rate">0%</div>
+                            <div class="stat-label">Recognition Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="system-uptime">0m</div>
+                            <div class="stat-label">System Uptime</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="attendance-history" style="display: none;">
+                    <h3 class="info-title">👥 Recent Attendance</h3>
+                    <div class="attendance-list" id="attendance-list">
+                        <p>No attendance records yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-panel" style="display: none;">
+            <h3 class="info-title">⚙️ System Settings</h3>
+            <div class="setting-item">
+                <span>Recognition Threshold:</span>
+                <input type="range" class="slider" id="threshold-slider" min="0.5" max="0.95" step="0.05" value="0.8" onchange="updateThreshold(this.value)">
+                <span id="threshold-value">80%</span>
+            </div>
+            <div class="setting-item">
+                <span>Cooldown Period (seconds):</span>
+                <input type="range" class="slider" id="cooldown-slider" min="10" max="120" step="10" value="30" onchange="updateCooldown(this.value)">
+                <span id="cooldown-value">30s</span>
+            </div>
+            <div class="setting-item">
+                <span>Auto-save Interval:</span>
+                <input type="range" class="slider" id="autosave-slider" min="30" max="300" step="30" value="60" onchange="updateAutosave(this.value)">
+                <span id="autosave-value">60s</span>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <script>
-        const URL = "https://teachablemachine.withgoogle.com/models/zl68wFLRV/";
-        let model, webcam, labelContainer, maxPredictions;
+        // System Configuration
+        const CONFIG = {
+            modelURL: "https://teachablemachine.withgoogle.com/models/zl68wFLRV/",
+            threshold: 0.8,
+            cooldownPeriod: 30000,
+            autosaveInterval: 60000
+        };
+
+        // System State
+        let model, webcam, maxPredictions;
+        let isRunning = false;
         let isProcessing = false;
+        let attendanceRecords = [];
+        let systemStats = {
+            totalScans: 0,
+            recognizedScans: 0,
+            systemStartTime: null
+        };
 
-        async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
-
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
-
-            webcam = new tmImage.Webcam(350, 350, true);
-            await webcam.setup();
-            await webcam.play();
-            window.requestAnimationFrame(loop);
-
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
-        }
-
-        async function loop() {
-            webcam.update();
-            await predict();
-            window.requestAnimationFrame(loop);
-        }
-
-        async function predict() {
-            if (isProcessing) return;
-
-            const prediction = await model.predict(webcam.canvas);
-            let messageContainer = document.getElementById("message-container");
-            let isRecognized = false;
-
-            prediction.forEach(pred => {
-                if (pred.probability > 0.8) {
-                    isRecognized = true;
-                    const name = pred.className;
-                    messageContainer.textContent = `Welcome to the class, ${name}! Attendance Marked!`;
-                    messageContainer.className = "success pulsing";
-                    isProcessing = true;
-
-                    setTimeout(() => {
-                        isProcessing = false;
-                    }, 30000); // 30 seconds delay
+        // Initialize system
+        async function startAttendance() {
+            const startBtn = document.getElementById('start-btn-text');
+            
+            if (!isRunning) {
+                try {
+                    startBtn.innerHTML = '<span class="loading"></span> Loading Model...';
+                    await initializeSystem();
+                    startBtn.textContent = '⏹️ Stop Attendance';
+                    isRunning = true;
+                    systemStats.systemStartTime = Date.now();
+                    updateSystemStats();
+                    startUptimeCounter();
+                } catch (error) {
+                    console.error('Failed to start system:', error);
+                    updateStatus('Failed to initialize camera or model', 'error');
+                    startBtn.textContent = '🎥 Start Attendance';
                 }
-            });
-
-            if (!isRecognized) {
-                messageContainer.textContent = "Not Recognized!";
-                messageContainer.className = "failure";
+            } else {
+                stopAttendance();
+                startBtn.textContent = '🎥 Start Attendance';
+                isRunning = false;
             }
         }
 
-        function showAttendanceHistory() {
-            alert("Attendance history functionality coming soon!");
+        async function initializeSystem() {
+            // Load model
+            const modelURL = CONFIG.modelURL + "model.json";
+            const metadataURL = CONFIG.modelURL + "metadata.json";
+            
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+            
+            // Setup webcam
+            webcam = new tmImage.Webcam(350, 350, true);
+            await webcam.setup();
+            await webcam.play();
+            
+            // Add webcam to container
+            const container = document.getElementById("webcam-container");
+            container.innerHTML = '';
+            container.appendChild(webcam.canvas);
+            
+            // Start prediction loop
+            window.requestAnimationFrame(predictionLoop);
+            
+            updateStatus('System initialized successfully', 'success');
+            document.getElementById('confidence-meter').style.display = 'block';
         }
+
+        function stopAttendance() {
+            if (webcam) {
+                webcam.stop();
+                document.getElementById("webcam-container").innerHTML = '<p>Camera stopped. Click "Start Attendance" to resume.</p>';
+            }
+            updateStatus('System stopped', 'warning');
+            document.getElementById('confidence-meter').style.display = 'none';
+        }
+
+        async function predictionLoop() {
+            if (!isRunning || !webcam) return;
+            
+            webcam.update();
+            await makePrediction();
+            window.requestAnimationFrame(predictionLoop);
+        }
+
+        async function makePrediction() {
+            if (isProcessing || !model) return;
+            
+            systemStats.totalScans++;
+            const prediction = await model.predict(webcam.canvas);
+            let bestMatch = null;
+            let maxConfidence = 0;
+            
+            // Find best match
+            prediction.forEach(pred => {
+                if (pred.probability > maxConfidence) {
+                    maxConfidence = pred.probability;
+                    bestMatch = pred;
+                }
+            });
+            
+            // Update confidence meter
+            updateConfidenceMeter(maxConfidence);
+            
+            // Check if recognition meets threshold
+            if (maxConfidence > CONFIG.threshold) {
+                systemStats.recognizedScans++;
+                await handleRecognition(bestMatch.className, maxConfidence);
+            } else {
+                updateStatus('Scanning for faces...', 'warning');
+            }
+            
+            updateSystemStats();
+        }
+
+        async function handleRecognition(studentName, confidence) {
+            // Check if student already marked present recently
+            const recentRecord = attendanceRecords.find(record => 
+                record.name === studentName && 
+                (Date.now() - record.timestamp) < CONFIG.cooldownPeriod
+            );
+            
+            if (recentRecord) {
+                updateStatus(`${studentName} already marked present`, 'warning');
+                return;
+            }
+            
+            // Mark attendance
+            const record = {
+                name: studentName,
+                timestamp: Date.now(),
+                confidence: Math.round(confidence * 100),
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString()
+            };
+            
+            attendanceRecords.unshift(record);
+            updateStatus(`Welcome ${studentName}! Attendance marked (${record.confidence}% confidence)`, 'success');
+            updateAttendanceList();
+            
+            // Set processing flag to prevent duplicate entries
+            isProcessing = true;
+            setTimeout(() => {
+                isProcessing = false;
+            }, CONFIG.cooldownPeriod);
+        }
+
+        function updateStatus(message, type) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = `status-message status-${type}`;
+        }
+
+        function updateConfidenceMeter(confidence) {
+            const percentage = Math.round(confidence * 100);
+            document.getElementById('confidence-value').textContent = percentage + '%';
+            document.getElementById('confidence-bar').style.width = percentage + '%';
+        }
+
+        function updateAttendanceList() {
+            const listElement = document.getElementById('attendance-list');
+            
+            if (attendanceRecords.length === 0) {
+                listElement.innerHTML = '<p>No attendance records yet</p>';
+                return;
+            }
+            
+            const recentRecords = attendanceRecords.slice(0, 10);
+            listElement.innerHTML = recentRecords.map(record => `
+                <div class="attendance-item">
+                    <div>
+                        <div class="student-name">${record.name}</div>
+                        <div class="attendance-time">${record.time} (${record.confidence}%)</div>
+                    </div>
+                    <div style="color: #6bcf7f;">✓</div>
+                </div>
+            `).join('');
+        }
+
+        function updateSystemStats() {
+            document.getElementById('total-present').textContent = new Set(attendanceRecords.map(r => r.name)).size;
+            document.getElementById('total-scans').textContent = systemStats.totalScans;
+            
+            const recognitionRate = systemStats.totalScans > 0 
+                ? Math.round((systemStats.recognizedScans / systemStats.totalScans) * 100)
+                : 0;
+            document.getElementById('recognition-rate').textContent = recognitionRate + '%';
+        }
+
+        function startUptimeCounter() {
+            setInterval(() => {
+                if (systemStats.systemStartTime) {
+                    const uptime = Math.floor((Date.now() - systemStats.systemStartTime) / (1000 * 60));
+                    document.getElementById('system-uptime').textContent = uptime + 'm';
+                }
+            }, 60000);
+        }
+
+        function toggleHistory() {
+            const historyElement = document.getElementById('attendance-history');
+            if (historyElement.style.display === 'none') {
+                historyElement.style.display = 'block';
+                updateAttendanceList();
+            } else {
+                historyElement.style.display = 'none';
+            }
+        }
+
+        function toggleSettings() {
+            const settingsPanel = document.getElementById('settings-panel');
+            settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateThreshold(value) {
+            CONFIG.threshold = parseFloat(value);
+            document.getElementById('threshold-value').textContent = Math.round(value * 100) + '%';
+        }
+
+        function updateCooldown(value) {
+            CONFIG.cooldownPeriod = parseInt(value) * 1000;
+            document.getElementById('cooldown-value').textContent = value + 's';
+        }
+
+        function updateAutosave(value) {
+            CONFIG.autosaveInterval = parseInt(value) * 1000;
+            document.getElementById('autosave-value').textContent = value + 's';
+        }
+
+        function exportData() {
+            if (attendanceRecords.length === 0) {
+                alert('No attendance data to export');
+                return;
+            }
+            
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Name,Date,Time,Confidence\n"
+                + attendanceRecords.map(record => 
+                    `${record.name},${record.date},${record.time},${record.confidence}%`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `attendance_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Auto-save functionality
+        setInterval(() => {
+            if (attendanceRecords.length > 0) {
+                // In a real application, this would save to a server
+                console.log('Auto-saving attendance data...', attendanceRecords);
+            }
+        }, CONFIG.autosaveInterval);
+
+        // Initialize stats on page load
+        updateSystemStats();
     </script>
 </body>
 </html>
